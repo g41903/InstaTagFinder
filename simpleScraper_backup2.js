@@ -38,6 +38,7 @@ var elementsAlts = "";
 var elementsTitles = "";
 var elementsHrefs = "";
 
+var downloadCounts=0;
 
 var clickMoreTimes = 0;
 var sumTime = 0;
@@ -59,7 +60,7 @@ function processQueue() {
 	};
 
 	console.log("DOWNLAOD TIME!!!");
-	var count = 0;
+
 
 	//Interate through every pageResults (instagram content array)
 	casper.eachThen(pageResults, function(response) {
@@ -71,10 +72,11 @@ function processQueue() {
 		startTime = new Date();
 
 		var modified = new Date(response.headers.get("Last-Modified"));
+		// casper.echo("GetLastModified: "+modified);
 		var pic_id = response.url.split("/").pop();
 		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
-		var filePath = "SimpleSraper/"+[modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
-		var location = "";
+		var filePath = "SimpleSraper/" + pic_date + "/" + response.url.split("/").pop();
+		var location = instagramTag;
 
 
 		//JSON format example
@@ -102,7 +104,7 @@ function processQueue() {
 			"img_tags": response.data[1],
 			"img_title": response.data[2],
 			"page_url": response.data[3],
-			"img_location": "",
+			"img_location": location,
 			"img_result": "",
 			"text_result": "",
 			"created_time": Date(),
@@ -117,7 +119,7 @@ function processQueue() {
 			//casper.echo("ResponseObject02: " + JSON.stringify(response));
 
 			var position = queued.indexOf(response.url);
-			casper.echo('Download #' + (++count) + ' – ' + response.url, 'INFO');
+			casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
 			casper.download(
 				response.url, filePath
 			);
@@ -189,8 +191,10 @@ casper.start(baseUrl, clickAndLoad);
 
 casper.then(function() {
 	var fs = require('fs');
-	var path = 'simple_json_output.txt';
-	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
+
+	var completeTime = new Date();
+	var path = 'simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.txt'
+		// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
 	var content = JSON.stringify(jsonArray);
 	// casper.echo("JSONresult: " + JSON.stringify(jsonArray));
 	fs.write(path, content, 'w');
