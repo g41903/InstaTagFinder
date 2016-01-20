@@ -134,8 +134,12 @@ function processQueue() {
 }
 
 function clickAndLoad() {
-	casper.click('.more');
-
+	if (!casper.exists('.more')) {
+		casper.echo("If no 'more' buttone...");
+		clickMoreTimes = threshold + 1;
+	} else {
+		casper.click('.more');
+	}
 	casper.waitWhileVisible('#conteneurLoaderEnCours', function() {});
 
 	casper.then(function() {
