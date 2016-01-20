@@ -58,7 +58,7 @@ function processQueue() {
 			casper.echo("ResponseObject02: " + JSON.stringify(response));
 			var modified = new Date(response.headers.get("Last-Modified"));
 			
-			var jsonFile=
+			// var jsonFile=
 			
 			var position = queued.indexOf(response.url);
 			casper.echo('Download #' + (++count) + ' – ' + response.url, 'INFO');

@@ -25,11 +25,12 @@ var baseUrl = "http://iconosquare.com/tag/" + instagramTag + '/';
 var downloaded = [];
 var queued = [];
 var pageResults = [];
-
 var jsonArray = [];
-
 var startTime = new Date();
 var timeDiff = 0;
+var page_time = 0;
+var page_location = "";
+
 
 if (!instagramTag) {
 	casper.echo('Requiring at least a valid Instagram hashtag to query.').exit();
@@ -56,68 +57,74 @@ function processQueue() {
 		casper.echo("TimeSlotTest: " + timeDiff);
 		startTime = new Date();
 
+		var modified = new Date(response.headers.get("Last-Modified"));
+		var pic_id = response.url.split("/").pop();
+		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
+		var filePath = ["Test1", modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
 		var location = "";
 		//this.thenOpen(response.data[3], function(response) {
 		this.thenOpen(response.data[3], function(response) {
-			casper.echo('OpenDetailPate: ' + JSON.stringify(response));
+			// casper.echo('OpenDetialPageTest: ' + JSON.stringify(response));
 			// casper.echo("DateTest: " + this.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-created'));
-			var page_time = casper.fetchText('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-created');
-			casper.echo("DateTest: " + page_time);
+
+			page_time = casper.fetchText('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-created');
+			casper.echo("Page_TimeTest: " + page_time);
+			casper.echo("Pic_TimeTest: " + pic_date);
 
 			// casper.echo("LocationTest: " + this.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-location'));
-			var page_location = casper.fetchText('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-location');
+			page_location = casper.fetchText('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-location');
 			casper.echo("LocationTest: " + page_location);
 			// casper.page.close();
 			// casper.page = require('webpage').create();
 
+			var k = 0;
+			k++;
+			if (k > 3) {
+				phantom.exit();
+
+			};
+
 		});
 
-
-
-		casper.echo("ResponseObject: " + JSON.stringify(response));
-		var modified = new Date(response.headers.get("Last-Modified"));
-		casper.echo("NewPageDetailTest: " + JSON.stringify(response));
+		// casper.echo("ResponseObject: " + JSON.stringify(response));
 		var jsonEx = {
-			"record": [{
-				"id": "12552252_111555322559991_1132579006_n.jpg",
-				"date": "2016-1-18",
-				"img_url": "https://scontent.cdninstagram.com/hphotos-xtp1/t51.2885-15/s150x150/e35/12523772_483208711850519_437376415_n.jpg",
-				"img_file_path": "/home/g41903/instagram-hashtag-gist/2016-1-19/12552252_111555322559991_1132579006_n.jpg",
-				"alt": "#cohiba #cuba #cigar #barolo #smoking #taiwan #redwine #cigars #mrricco #cuban #botl #menslife #sotl #mensfashion #menstyle #taipei #wine",
-				"title": "榕樹下 #Taiwan#Tainan#HKU#DCCI#travel",
-				"page_url": "http://iconosquare.com/p/1165793648548442906_371962235",
-				"location": "Andorra",
-				"created_time": "20160-01-19",
-				"updated_time": "20160-01-20"
-			}]
+			"img_id": "12552252_111555322559991_1132579006_n.jpg",
+			"img_date": "2016-1-18",
+			"img_url": "https://scontent.cdninstagram.com/hphotos-xtp1/t51.2885-15/s150x150/e35/12523772_483208711850519_437376415_n.jpg",
+			"img_file_path": "/home/g41903/instagram-hashtag-gist/2016-1-19/12552252_111555322559991_1132579006_n.jpg",
+			"img_tags": "#cohiba #cuba #cigar #barolo #smoking #taiwan #redwine #cigars #mrricco #cuban #botl #menslife #sotl #mensfashion #menstyle #taipei #wine",
+			"img_title": "榕樹下 #Taiwan#Tainan#HKU#DCCI#travel",
+			"page_url": "http://iconosquare.com/p/1165793648548442906_371962235",
+			"img_location": "Andorra",
+			"image_result": "Update the result of image recognition: {key: Object_name,value: Object_score}",
+			"text_result": "Update the result of text processing",
+			"created_time": "20160-01-19",
+			"updated_time": "20160-01-20"
 		}
 
 
-
-		var pic_id = response.url.split("/").pop();
-		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
-		var filePath = ["Ernie", modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
 		var jsonRecord = {
-			"record": [{
-				"id": pic_id,
-				"date": pic_date,
-				"img_url": response.data[0],
-				"img_file_path": filePath,
-				"alt": response.data[1],
-				"title": response.data[2],
-				"page_url": response.data[3],
-				"location": "Andorra",
-				"created_time": Date(),
-				"updated_time": Date()
-			}]
+			"img_id": pic_id,
+			"img_date": page_time,
+			"img_url": response.data[0],
+			"img_file_path": filePath,
+			"img_tags": response.data[1],
+			"img_title": response.data[2],
+			"page_url": response.data[3],
+			"img_location": page_location,
+			"img_result": "",
+			"text_result": "",
+			"created_time": Date(),
+			"updated_time": Date()
 		}
-
-
 
 		jsonArray.push(jsonRecord);
 		casper.echo("JSONrecord: " + JSON.stringify(jsonRecord));
 		casper.echo('Download #' + (++count) + ' – ' + response.data[0], 'INFO');
 		casper.echo('Myfilepath: ' + filePath);
+		casper.download(
+			response.data[0], filePath
+		);
 
 		// this.thenOpen(response.data[0], function(response) {
 
@@ -261,8 +268,8 @@ casper.start(baseUrl, clickAndLoad);
 
 casper.then(function() {
 	var fs = require('fs');
-	var path = 'json_output.txt';
-	casper.echo("JSONresults: " + JSON.stringify(jsonArray));
+	var path = 'json_output_new.txt';
+	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
 	var content = JSON.stringify(jsonArray);
 	// casper.echo("JSONresult: " + JSON.stringify(jsonArray));
 	fs.write(path, content, 'w');
