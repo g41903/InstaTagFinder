@@ -8,7 +8,7 @@ var casper = require('casper').create({
 	// verbose: true,
 	// logLevel: "debug",
 
-	waitTimeout: 100000000,
+	waitTimeout: 100000,
 	pageSettings: {
 		loadImages: false,
 		loadPlugins: false
@@ -20,7 +20,7 @@ var casper = require('casper').create({
 });
 
 var instagramTag = casper.cli.get(0);
-var threshold = casper.cli.get('limit') || 40;
+var threshold = casper.cli.get('limit') || 100;
 var baseUrl = "http://iconosquare.com/tag/" + instagramTag + '/';
 var downloaded = [];
 var queued = [];
@@ -30,13 +30,13 @@ var startTime = new Date();
 var timeDiff = 0;
 var page_time = 0;
 var page_location = "";
-var k = 0;
 
 
 var elements = "";
 var elementsAlts = "";
 var elementsTitles = "";
 var elementsHrefs = "";
+
 
 var clickMoreTimes = 0;
 var sumTime = 0;
@@ -60,6 +60,7 @@ function processQueue() {
 	console.log("DOWNLAOD TIME!!!");
 	var count = 0;
 
+	//Interate through every pageResults (instagram content array)
 	casper.eachThen(pageResults, function(response) {
 
 		timeDiff = Math.abs(new Date() - startTime);
@@ -71,38 +72,11 @@ function processQueue() {
 		var modified = new Date(response.headers.get("Last-Modified"));
 		var pic_id = response.url.split("/").pop();
 		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
-		var filePath = ["Content", modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
+		var filePath = ["Simple", modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
 		var location = "";
-		//this.thenOpen(response.data[3], function(response) {
-		this.thenOpen(response.data[3], function(response) {
-			// casper.echo('OpenDetialPageTest: ' + JSON.stringify(response));
-			// casper.echo("DateTest: " + this.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-created'));
 
-			page_time = casper.fetchText('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-created');
-			// casper.echo("Page_TimeTest: " + page_time);
-			// casper.echo("Pic_TimeTest: " + pic_date);
 
-			// casper.echo("LocationTest: " + this.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-location'));
-			page_location = casper.fetchText('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-location');
-			// casper.echo("LocationTest: " + page_location);
-			// casper.page.close();
-			// casper.page = require('webpage').create();
-
-			// k++;
-			// casper.echo("Knumber: " + k);
-			// if (k > 3) {
-			// 	// phantom.exit();
-			// 	// casper.echo("Leaving!!")
-			// 	casper.then(function() {
-			// 		casper.page.close();
-			// 		casper.page = require('webpage').create();
-			// 	});
-			// 	k = 0;
-			// };
-
-		});
-
-		// casper.echo("ResponseObject: " + JSON.stringify(response));
+		//JSON format example
 		var jsonEx = {
 			"img_id": "12552252_111555322559991_1132579006_n.jpg",
 			"img_date": "2016-1-18",
@@ -118,16 +92,16 @@ function processQueue() {
 			"updated_time": "20160-01-20"
 		}
 
-
+		//Generate one JSON object
 		var jsonRecord = {
 			"img_id": pic_id,
-			"img_date": page_time,
+			"img_date": pic_date,
 			"img_url": response.data[0],
 			"img_file_path": filePath,
 			"img_tags": response.data[1],
 			"img_title": response.data[2],
 			"page_url": response.data[3],
-			"img_location": page_location,
+			"img_location": "",
 			"img_result": "",
 			"text_result": "",
 			"created_time": Date(),
@@ -135,52 +109,24 @@ function processQueue() {
 		}
 
 		jsonArray.push(jsonRecord);
-		// casper.echo("JSONrecord: " + JSON.stringify(jsonRecord));
-		casper.echo('Download #' + (++count) + ' – ' + response.data[0], 'INFO');
-		// casper.echo('Myfilepath: ' + filePath);
-		casper.download(
-			response.data[0], filePath
-		);
-
-		// this.thenOpen(response.data[0], function(response) {
-
-		// 	casper.download(
-		// 		response.url, filePath
-		// 	);
 
 
+		// var pageDetail = response;
+		this.thenOpen(response.data[0], function(response) {
+			//casper.echo("ResponseObject02: " + JSON.stringify(response));
 
-		// });
+			var position = queued.indexOf(response.url);
+			casper.echo('Download #' + (++count) + ' – ' + response.url, 'INFO');
+			casper.download(
+				response.url, filePath
+			);
+			// Stacking in downloaded 
+			// and removing the url from the queued array 
+			downloaded.push(response.url);
+			queued = queued.slice(0, position).concat(queued.slice(position + 1));
+		});
 
-
-
-		/***
-				// var pageDetail = response;
-				this.thenOpen(response.data[0], function(response) {
-					//casper.echo("ResponseObject02: " + JSON.stringify(response));
-
-
-					var position = queued.indexOf(response.url);
-					casper.echo('Download #' + (++count) + ' – ' + response.url, 'INFO');
-					var j = 0
-
-					// casper.echo("PageDetail: " + JSON.stringify(pageDetail));
-					// casper.echo("PageTime: " + JSON.stringify(modified));
-
-					casper.download(
-						response.url, filePath
-					);
-					j = j + 1;
-					// Stacking in downloaded 
-					// and removing the url from the queued array 
-					downloaded.push(response.url);
-					//queued = queued.slice(0, position).concat(queued.slice(position + 1));
-				});
-		***/
-		capser.clear()
 	});
-
-
 
 }
 
@@ -190,46 +136,23 @@ function clickAndLoad() {
 	casper.waitWhileVisible('#conteneurLoaderEnCours', function() {});
 
 	casper.then(function() {
-		// var elements = casper.getElementsAttribute('.photos-wrapper .lienPhotoGrid:only-child img', 'src'); 
-		// var elementsTest = casper.getElementsAttribute('.photos-wrapper .pseudo').text();
-		// var elementsTest2=casper.fetchText('.photos-wrapper .pseudo a');
-		// casper.echo('TestSelector: ' + elementsTest2);
-		// phantom.exit();
+
 		timeDiff = Math.abs(new Date() - startTime);
 		sumTime = sumTime + timeDiff;
 		casper.echo("TimeSlotTest: " + timeDiff);
 		casper.echo("SumTime: " + sumTime);
 		startTime = new Date();
 
-		// for (var i = 0; i < elements.length; i++) {
-		// 	casper.log('elementsLength: ' + elements[i], 'debug');
-		// 	casper.echo('altLength: ' + elementsAlts[i]);
-		// 	casper.echo('titleLength: ' + elementsTitles[i]);
-		// 	casper.echo('hrefLength: ' + elementsHrefs[i]);
-		// };
-
-
-
-		//getPageDetail(elementsHref);
-		// casper.echo('tagAlts: '+elementsAlts);
-		// casper.echo('tagAlts01: '+elementsAlts[0]);
-		// casper.echo('tagTitles: '+elementsTitles);
-		// casper.echo('tagTitles01: '+elementsTitles[0]);
-
-		//casper.echo("Ernie! These are tags alt: "+elementsAlt);
-		//casper.echo("Handsome guy! here are titles: " +elementsTitle);
-
-
-		// var tagTime = casper.getElementsAttribute('')
+		// console.log("Found " + elements.length + " pictures…");
 		clickMoreTimes++;
 		console.log("Click next page " + clickMoreTimes + " times");
-		// console.log("Found " + elements.length + " pictures…");
+
 
 		if (clickMoreTimes < threshold) {
 			casper.waitForSelector(".more", clickAndLoad, function() {
 				//elements.map(queue);
 				//elements.map()
-				casper.echo("ClickMore: " + elements.length);
+				casper.echo("I'm here");
 				for (var i = 0; i < elements.length; i++) {
 					var newUrl = queue(elements[i]);
 					pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
@@ -240,13 +163,10 @@ function clickAndLoad() {
 				processQueue();
 			});
 		} else {
-
-			casper.echo("ClickEnough: " + elements.length);
 			elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
 			elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
 			elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
 			elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
-
 
 			for (var i = 0; i < elements.length; i++) {
 				var newUrl = queue(elements[i]);
@@ -268,7 +188,7 @@ casper.start(baseUrl, clickAndLoad);
 
 casper.then(function() {
 	var fs = require('fs');
-	var path = 'json_output_new.txt';
+	var path = 'simple_json_output.txt';
 	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
 	var content = JSON.stringify(jsonArray);
 	// casper.echo("JSONresult: " + JSON.stringify(jsonArray));

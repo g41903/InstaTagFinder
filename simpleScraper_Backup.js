@@ -5,8 +5,8 @@
 "use strict";
 
 var casper = require('casper').create({
-	verbose: true,
-	logLevel: "debug",
+	// verbose: true,
+	// logLevel: "debug",
 
 	waitTimeout: 100000,
 	pageSettings: {
@@ -20,7 +20,7 @@ var casper = require('casper').create({
 });
 
 var instagramTag = casper.cli.get(0);
-var threshold = casper.cli.get('limit') || 2;
+var threshold = casper.cli.get('limit') ||2;
 var baseUrl = "http://iconosquare.com/tag/" + instagramTag + '/';
 var downloaded = [];
 var queued = [];
@@ -210,6 +210,7 @@ function clickAndLoad() {
 			casper.waitForSelector(".more", clickAndLoad, function() {
 				//elements.map(queue);
 				//elements.map()
+				
 
 				for (var i = 0; i < elements.length; i++) {
 					var newUrl = queue(elements[i]);
