@@ -8,7 +8,7 @@ var casper = require('casper').create({
 	// verbose: true,
 	// logLevel: "debug",
 
-	waitTimeout: 10000000,
+	waitTimeout: 1000000,
 	pageSettings: {
 		loadImages: false,
 		loadPlugins: false
@@ -27,29 +27,26 @@ var instagramTag = casper.cli.get(0);
 //the max pages which can be downloaded
 var maxDownloadPageIndex = casper.cli.get(1)
 var threshold = casper.cli.get('limit') || maxDownloadPageIndex;
-
-
-
 var baseUrl = "http://iconosquare.com/tag/" + instagramTag + '/';
 var downloaded = [];
 var queued = [];
 var pageResults = [];
 var jsonArray = [];
 var startTime = new Date();
+
 var timeDiff = 0;
 var page_time = 0;
 var page_location = "";
-
-
-var elements = "";
-var elementsAlts = "";
-var elementsTitles = "";
-var elementsHrefs = "";
+var sumDownLoadTime = 0;
+var sumTime = 0
+	// var elements = "";
+	// var elementsAlts = "";
+	// var elementsTitles = "";
+	// var elementsHrefs = "";
 
 
 var clickMoreTimes = 0;
-var sumTime = 0;
-var sumDownLoadTime = 0;
+
 
 var downloadCounts = 0;
 
@@ -76,7 +73,7 @@ function processQueue() {
 	//Interate through every pageResults (instagram content array)
 	casper.eachThen(pageResults, function(response) {
 
-		timeDiff = Math.abs(new Date() - startTime);
+		var timeDiff = Math.abs(new Date() - startTime);
 		sumDownLoadTime = sumDownLoadTime + timeDiff;
 		casper.echo("TimeSlotTest: " + timeDiff);
 		casper.echo("SumDownloadTime:" + sumDownLoadTime);
@@ -85,7 +82,7 @@ function processQueue() {
 		var modified = new Date(response.headers.get("Last-Modified"));
 		var pic_id = response.url.split("/").pop();
 		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
-		var filePath = "Simplescraper/"+[modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
+		var filePath = "Simplescraper/" + [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
 		var location = "";
 
 
@@ -178,10 +175,10 @@ function clickAndLoad() {
 				processQueue();
 			});
 		} else {
-			elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
-			elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
-			elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
-			elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
+			var elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
+			var elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
+			var elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
+			var elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
 
 			for (var i = 0; i < elements.length; i++) {
 				var newUrl = queue(elements[i]);

@@ -8,7 +8,7 @@ var casper = require('casper').create({
 	// verbose: true,
 	// logLevel: "debug",
 
-	waitTimeout: 10000000,
+	waitTimeout: 100000,
 	pageSettings: {
 		loadImages: false,
 		loadPlugins: false
@@ -20,16 +20,8 @@ var casper = require('casper').create({
 });
 
 var instagramTag = casper.cli.get(0);
-
-//the start pages which can begin to download, start from 1
-// var startDownloadPageIndex = casper.cli.get(1);
-
-//the max pages which can be downloaded
 var maxDownloadPageIndex = casper.cli.get(1)
 var threshold = casper.cli.get('limit') || maxDownloadPageIndex;
-
-
-
 var baseUrl = "http://iconosquare.com/tag/" + instagramTag + '/';
 var downloaded = [];
 var queued = [];
@@ -50,10 +42,6 @@ var elementsHrefs = "";
 var clickMoreTimes = 0;
 var sumTime = 0;
 var sumDownLoadTime = 0;
-
-var downloadCounts = 0;
-
-
 if (!instagramTag) {
 	casper.echo('Requiring at least a valid Instagram hashtag to query.').exit();
 }
@@ -71,7 +59,7 @@ function processQueue() {
 	};
 
 	console.log("DOWNLAOD TIME!!!");
-
+	var count = 0;
 
 	//Interate through every pageResults (instagram content array)
 	casper.eachThen(pageResults, function(response) {
@@ -85,7 +73,7 @@ function processQueue() {
 		var modified = new Date(response.headers.get("Last-Modified"));
 		var pic_id = response.url.split("/").pop();
 		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
-		var filePath = "Simplescraper/"+[modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
+		var filePath = "SimpleSraper/"+[modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
 		var location = "";
 
 
@@ -104,7 +92,6 @@ function processQueue() {
 			"created_time": "20160-01-19",
 			"updated_time": "20160-01-20"
 		}
-
 
 		//Generate one JSON object
 		var jsonRecord = {
@@ -125,13 +112,12 @@ function processQueue() {
 		jsonArray.push(jsonRecord);
 
 
-
 		// var pageDetail = response;
 		this.thenOpen(response.data[0], function(response) {
 			//casper.echo("ResponseObject02: " + JSON.stringify(response));
 
 			var position = queued.indexOf(response.url);
-			casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
+			casper.echo('Download #' + (++count) + ' – ' + response.url, 'INFO');
 			casper.download(
 				response.url, filePath
 			);
@@ -146,13 +132,7 @@ function processQueue() {
 }
 
 function clickAndLoad() {
-
-	if (!casper.exists('.more')) {
-		casper.echo("If no 'more' buttone...");
-		clickMoreTimes = threshold + 1;
-	} else {
-		casper.click('.more');
-	}
+	casper.click('.more');
 
 	casper.waitWhileVisible('#conteneurLoaderEnCours', function() {});
 
@@ -163,18 +143,24 @@ function clickAndLoad() {
 		casper.echo("TimeSlotTest: " + timeDiff);
 		casper.echo("SumTime: " + sumTime);
 		startTime = new Date();
+
+		// console.log("Found " + elements.length + " pictures…");
 		clickMoreTimes++;
-		// startDownloadPageIndex++;
 		console.log("Click next page " + clickMoreTimes + " times");
 
 
 		if (clickMoreTimes < threshold) {
 			casper.waitForSelector(".more", clickAndLoad, function() {
-				// for (var i = 0; i < elements.length; i++) {
-				// 	var newUrl = queue(elements[i]);
-				// 	pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
-				// }
-				casper.echo('None ishere');
+				//elements.map(queue);
+				//elements.map()
+				casper.echo("I'm here");
+				for (var i = 0; i < elements.length; i++) {
+					var newUrl = queue(elements[i]);
+					pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
+				}
+
+				// casper.echo('PageResults: ' + pageResults);
+				// casper.echo('PageResults01: ' + pageResults[0]);
 				processQueue();
 			});
 		} else {
@@ -187,7 +173,12 @@ function clickAndLoad() {
 				var newUrl = queue(elements[i]);
 				pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
 			}
+
+			// casper.echo('PageResults: ' + pageResults);
+			// casper.echo('PageResults01: ' + pageResults[0]);
+			// elements.map(queue);
 			processQueue();
+
 		}
 	});
 }
@@ -198,9 +189,10 @@ casper.start(baseUrl, clickAndLoad);
 
 casper.then(function() {
 	var fs = require('fs');
-	var completeTime = new Date();
-	var path = 'simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.txt';
+	var path = 'simple_json_output.txt';
+	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
 	var content = JSON.stringify(jsonArray);
+	// casper.echo("JSONresult: " + JSON.stringify(jsonArray));
 	fs.write(path, content, 'w');
 	// phantom.exit();
 })
