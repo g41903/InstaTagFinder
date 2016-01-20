@@ -5,10 +5,10 @@
 "use strict";
 
 var casper = require('casper').create({
-	verbose: true,
-	logLevel: "debug",
+	// verbose: true,
+	// logLevel: "debug",
 
-	waitTimeout: 100000,
+	waitTimeout: 100000000,
 	pageSettings: {
 		loadImages: false,
 		loadPlugins: false
@@ -20,7 +20,7 @@ var casper = require('casper').create({
 });
 
 var instagramTag = casper.cli.get(0);
-var threshold = casper.cli.get('limit') || 10;
+var threshold = casper.cli.get('limit') || 5000;
 var baseUrl = "http://iconosquare.com/tag/" + instagramTag + '/';
 var downloaded = [];
 var queued = [];
@@ -30,7 +30,15 @@ var startTime = new Date();
 var timeDiff = 0;
 var page_time = 0;
 var page_location = "";
+var k = 0;
 
+
+var elements = "";
+var elementsAlts = "";
+var elementsTitles = "";
+var elementsHrefs = "";
+
+var clickMoreTimes = 0;
 
 if (!instagramTag) {
 	casper.echo('Requiring at least a valid Instagram hashtag to query.').exit();
@@ -60,7 +68,7 @@ function processQueue() {
 		var modified = new Date(response.headers.get("Last-Modified"));
 		var pic_id = response.url.split("/").pop();
 		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
-		var filePath = ["Test1", modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
+		var filePath = ["Content", modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-") + "/" + response.url.split("/").pop();
 		var location = "";
 		//this.thenOpen(response.data[3], function(response) {
 		this.thenOpen(response.data[3], function(response) {
@@ -68,21 +76,26 @@ function processQueue() {
 			// casper.echo("DateTest: " + this.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-created'));
 
 			page_time = casper.fetchText('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-created');
-			casper.echo("Page_TimeTest: " + page_time);
-			casper.echo("Pic_TimeTest: " + pic_date);
+			// casper.echo("Page_TimeTest: " + page_time);
+			// casper.echo("Pic_TimeTest: " + pic_date);
 
 			// casper.echo("LocationTest: " + this.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-location'));
 			page_location = casper.fetchText('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-location');
-			casper.echo("LocationTest: " + page_location);
+			// casper.echo("LocationTest: " + page_location);
 			// casper.page.close();
 			// casper.page = require('webpage').create();
 
-			var k = 0;
-			k++;
-			if (k > 3) {
-				phantom.exit();
-
-			};
+			// k++;
+			// casper.echo("Knumber: " + k);
+			// if (k > 3) {
+			// 	// phantom.exit();
+			// 	// casper.echo("Leaving!!")
+			// 	casper.then(function() {
+			// 		casper.page.close();
+			// 		casper.page = require('webpage').create();
+			// 	});
+			// 	k = 0;
+			// };
 
 		});
 
@@ -119,9 +132,9 @@ function processQueue() {
 		}
 
 		jsonArray.push(jsonRecord);
-		casper.echo("JSONrecord: " + JSON.stringify(jsonRecord));
+		// casper.echo("JSONrecord: " + JSON.stringify(jsonRecord));
 		casper.echo('Download #' + (++count) + ' – ' + response.data[0], 'INFO');
-		casper.echo('Myfilepath: ' + filePath);
+		// casper.echo('Myfilepath: ' + filePath);
 		casper.download(
 			response.data[0], filePath
 		);
@@ -161,7 +174,7 @@ function processQueue() {
 					//queued = queued.slice(0, position).concat(queued.slice(position + 1));
 				});
 		***/
-
+		capser.clear()
 	});
 
 
@@ -179,17 +192,16 @@ function clickAndLoad() {
 		// var elementsTest2=casper.fetchText('.photos-wrapper .pseudo a');
 		// casper.echo('TestSelector: ' + elementsTest2);
 		// phantom.exit();
+		timeDiff = Math.abs(new Date() - startTime);
+		casper.echo("TimeSlotTest: " + timeDiff);
+		startTime = new Date();
 
-		var elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
-		var elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
-		var elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
-		var elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
-		for (var i = 0; i < elements.length; i++) {
-			casper.log('elementsLength: ' + elements[i], 'debug');
-			casper.echo('altLength: ' + elementsAlts[i]);
-			casper.echo('titleLength: ' + elementsTitles[i]);
-			casper.echo('hrefLength: ' + elementsHrefs[i]);
-		};
+		// for (var i = 0; i < elements.length; i++) {
+		// 	casper.log('elementsLength: ' + elements[i], 'debug');
+		// 	casper.echo('altLength: ' + elementsAlts[i]);
+		// 	casper.echo('titleLength: ' + elementsTitles[i]);
+		// 	casper.echo('hrefLength: ' + elementsHrefs[i]);
+		// };
 
 
 
@@ -204,14 +216,15 @@ function clickAndLoad() {
 
 
 		// var tagTime = casper.getElementsAttribute('')
+		clickMoreTimes++;
+		console.log("Click next page " + clickMoreTimes + " times");
+		// console.log("Found " + elements.length + " pictures…");
 
-		console.log("Found " + elements.length + " pictures…");
-
-		if (elements.length < threshold) {
+		if (clickMoreTimes < threshold) {
 			casper.waitForSelector(".more", clickAndLoad, function() {
 				//elements.map(queue);
 				//elements.map()
-
+				casper.echo("ClickMore: " + elements.length);
 				for (var i = 0; i < elements.length; i++) {
 					var newUrl = queue(elements[i]);
 					pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
@@ -222,6 +235,14 @@ function clickAndLoad() {
 				processQueue();
 			});
 		} else {
+
+			casper.echo("ClickEnough: " + elements.length);
+			elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
+			elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
+			elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
+			elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
+
+
 			for (var i = 0; i < elements.length; i++) {
 				var newUrl = queue(elements[i]);
 				pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
@@ -237,32 +258,6 @@ function clickAndLoad() {
 }
 
 
-function getPageDetail(allUrls) {
-	casper.echo('Here fristUrl:' + allUrls);
-	var strUrl = JSON.stringify(allUrls);
-	var strArray = JSON.parse(strUrl);
-	casper.echo('showurl: ' +
-		strArray);
-	// var urlArray = strUrl.split(",");
-
-
-	// casper.echo('Here splitUrl:'+urlArray);
-
-	for (var i = 0; i < strArray.length; i++) {
-		casper.echo('showarray0: ' +
-			strArray[i]);
-
-		casper.open(strArray[i], function() {
-			casper.echo("UrlArray" + strArray[i]);
-			casper.echo('urlResponse' + JSON.stringify(response));
-			//require('utils').dump(this.getElementsAttribute('div[title="Google"]', 'title')); // "['Google']"
-			casper.echo("These are dates: " + this.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .bloc-footer .pic-created', 'class'));
-		});
-		casper.page.close();
-	}
-
-
-}
 
 casper.start(baseUrl, clickAndLoad);
 
