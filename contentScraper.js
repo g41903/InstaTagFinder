@@ -41,6 +41,12 @@ var elementsHrefs = "";
 var clickMoreTimes = 0;
 var sumTime = 0;
 var sumDownLoadTime = 0;
+
+
+
+
+
+
 if (!instagramTag) {
 	casper.echo('Requiring at least a valid Instagram hashtag to query.').exit();
 }
@@ -177,7 +183,7 @@ function processQueue() {
 					//queued = queued.slice(0, position).concat(queued.slice(position + 1));
 				});
 		***/
-		capser.clear()
+		casper.clear()
 	});
 
 
@@ -268,7 +274,7 @@ casper.start(baseUrl, clickAndLoad);
 
 casper.then(function() {
 	var fs = require('fs');
-	var path = 'json_output_new.txt';
+	var path = 'Content_JSON_Output_file2015020.txt';
 	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
 	var content = JSON.stringify(jsonArray);
 	// casper.echo("JSONresult: " + JSON.stringify(jsonArray));
