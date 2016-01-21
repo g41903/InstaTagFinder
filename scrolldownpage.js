@@ -3,8 +3,8 @@
 "use strict";
 
 var casper = require('casper').create({
-  verbose: true,
-  logLevel: "debug",
+  // verbose: true,
+  // logLevel: "debug",
 
   waitTimeout: 100000,
   pageSettings: {
@@ -45,6 +45,10 @@ var clickMoreTimes = 0;
 var sumTime = 0;
 var sumDownLoadTime = 0;
 
+var elemNum = 0;
+
+var currentClickNum = 0;
+
 function queue(url) {
   // casper.echo("MapURL: " + url);
   //queued.push(url.replace(/_s.jpg/, '_n.jpg'));
@@ -55,26 +59,35 @@ function queue(url) {
 function scrollAndclick() {
   // Checks for bottom div and scrolls down from time to time
 
+  casper.click('.more');
+  casper.echo('Click more');
+  timeDiff = Math.abs(new Date() - startTime);
+  sumDownLoadTime = sumDownLoadTime + timeDiff;
+  casper.echo("TimeSlotTest: " + timeDiff);
+  casper.echo("SumDownloadTime:" + sumDownLoadTime);
+  startTime = new Date();
 
-  for (var i = 0; i < clickMaxNum; i++) {
-    // Checks if there is a div with class=".has-more-items" 
-    // (not sure if this is the best way of doing it)
-    // /class=".has-more-items"/g
-    casper.waitForSelector('.more', function() {
-      casper.click('.more');
-      casper.echo('This is the ' + i + 'loop');
-    });
+  casper.waitWhileVisible('#conteneurLoaderEnCours', function() {});
+  currentClickNum++;
+  casper.echo(currentClickNum + ' click!','INFO');
+
+  if (currentClickNum < clickMaxNum) {
+    casper.echo('Not enough');
     window.document.body.scrollTop = document.body.scrollHeight;
+    casper.waitForSelector('.more', scrollAndclick);
 
-    timeDiff = Math.abs(new Date() - startTime);
-    sumDownLoadTime = sumDownLoadTime + timeDiff;
-    casper.echo("TimeSlotTest: " + timeDiff);
-    casper.echo("SumDownloadTime:" + sumDownLoadTime);
-    startTime = new Date();
+    // if (casper.exists('.more')) {
+    //   scrollAndclick();
+    // } else {
+    //   window.document.body.scrollTop = document.body.scrollHeight;
+    // };
 
+  } else {
+    casper.echo('Begin Downloading', 'INFO')
+    getContent();
 
   }
-  getContent();
+
 };
 
 function getContent() {
@@ -83,13 +96,15 @@ function getContent() {
   elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
   elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
   elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
-
-  for (var i = 0; i < elements.length; i++) {
+  elemNum = elements.length;
+  for (var i = 0; i < elemNum; i++) {
     var newUrl = queue(elements[i]);
     pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
+    // pageResults.push(newUrl);
+
   }
-  casper.echo("processing pageResults:" + pageResults);
-  processQueue();
+  casper.echo("processingpageResults:" + elemNum, 'INFO');
+  // processQueue();
 };
 
 function processQueue() {
@@ -98,9 +113,32 @@ function processQueue() {
   };
 
 
-  //Interate through every pageResults (instagram content array)
-  casper.eachThen(pageResults, function(response) {
+  // for (var i = 0; i < elemNum; i++) {
+  //   var imgUrl = pageResults[i][0];
+  //   var modified = new Date(response.headers.get("Last-Modified"));
+  //   var pic_id = imgUrl.split("/").pop();
+  //   var pic_date
+  // }
 
+  //Interate through every pageResults (instagram content array)
+  casper.echo('PageresultsYeh: ' + JSON.stringify(pageResults));
+  casper.eachThen(pageResults, function(response) {
+    casper.echo('pageResults_resonse:' + JSON.stringify(response));
+
+    // var pageDetail = response;
+    this.thenOpen(response.data[0], function(response) {
+      casper.echo("ResponseObject02: " + JSON.stringify(response));
+
+      // var position = queued.indexOf(response.url);
+      casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
+      casper.download(
+        response.url, filePath
+      );
+      // Stacking in downloaded 
+      // and removing the url from the queued array 
+      // downloaded.push(response.url);
+      // queued = queued.slice(0, position).concat(queued.slice(position + 1));
+    });
 
 
     var modified = new Date(response.headers.get("Last-Modified"));
@@ -151,20 +189,7 @@ function processQueue() {
     casper.echo("SumDownloadTime:" + sumDownLoadTime);
     startTime = new Date();
 
-    // var pageDetail = response;
-    this.thenOpen(response.data[0], function(response) {
-      casper.echo("ResponseObject02: " + JSON.stringify(response));
 
-      var position = queued.indexOf(response.url);
-      casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
-      casper.download(
-        response.url, filePath
-      );
-      // Stacking in downloaded 
-      // and removing the url from the queued array 
-      downloaded.push(response.url);
-      queued = queued.slice(0, position).concat(queued.slice(position + 1));
-    });
 
   });
 
