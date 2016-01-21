@@ -162,10 +162,10 @@ function clickAndLoad() {
 				//elements.map(queue);
 				//elements.map()
 				casper.echo("I'm here");
-				for (var i = 0; i < elements.length; i++) {
-					var newUrl = queue(elements[i]);
-					pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
-				}
+				// for (var i = 0; i < elements.length; i++) {
+				// 	var newUrl = queue(elements[i]);
+				// 	pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
+				// }
 
 				// casper.echo('PageResults: ' + pageResults);
 				// casper.echo('PageResults01: ' + pageResults[0]);

@@ -4,22 +4,24 @@
 "use strict";
 
 var casper = require('casper').create({
-	// verbose: true,
-	// logLevel: "debug",
+	verbose: true,
+	logLevel: "debug",
 
 	waitTimeout: 10000000,
 	pageSettings: {
 		loadImages: false,
 		loadPlugins: false,
 		javascript: false
+
 	},
 	viewportSize: {
 		height: 1000,
 		width: 1024
 	}
+
 });
 
-
+// casper.onResourceTimeout = 500;
 
 var instagramTag = casper.cli.get(0);
 var clickMaxNum = casper.cli.get(1);
