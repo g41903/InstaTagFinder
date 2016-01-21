@@ -11,7 +11,8 @@ var casper = require('casper').create({
 	waitTimeout: 100000,
 	pageSettings: {
 		loadImages: false,
-		loadPlugins: false
+		loadPlugins: false,
+		// javascript:false
 	},
 	viewportSize: {
 		height: 1000,
@@ -38,7 +39,7 @@ var elementsAlts = "";
 var elementsTitles = "";
 var elementsHrefs = "";
 
-var downloadCounts=0;
+var downloadCounts = 0;
 
 var clickMoreTimes = 0;
 var sumTime = 0;
@@ -134,12 +135,13 @@ function processQueue() {
 }
 
 function clickAndLoad() {
-	if (!casper.exists('.more')) {
-		casper.echo("If no 'more' buttone...");
-		clickMoreTimes = threshold + 1;
-	} else {
-		casper.click('.more');
-	}
+	// if (!casper.exists('.more')) {
+	// 	casper.echo("If no 'more' button...");
+	// 	clickMoreTimes = threshold + 1;
+	// } else {
+	// 	casper.click('.more');
+	// }
+	casper.click('.more');
 	casper.waitWhileVisible('#conteneurLoaderEnCours', function() {});
 
 	casper.then(function() {
