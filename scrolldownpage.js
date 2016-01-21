@@ -49,6 +49,9 @@ var elemNum = 0;
 
 var currentClickNum = 0;
 
+
+var intervalId = 0;
+
 function queue(url) {
   // casper.echo("MapURL: " + url);
   //queued.push(url.replace(/_s.jpg/, '_n.jpg'));
@@ -67,13 +70,16 @@ function scrollAndclick() {
   casper.echo("SumDownloadTime:" + sumDownLoadTime);
   startTime = new Date();
 
-  casper.waitWhileVisible('#conteneurLoaderEnCours', function() {});
+
   currentClickNum++;
-  casper.echo(currentClickNum + ' click!','INFO');
+  casper.echo(currentClickNum + ' click!', 'INFO');
 
   if (currentClickNum < clickMaxNum) {
     casper.echo('Not enough');
-    window.document.body.scrollTop = document.body.scrollHeight;
+    intervalId = window.setInterval(
+      function() {
+        window.document.body.scrollTop = document.body.scrollHeight;
+      }, 500);
     casper.waitForSelector('.more', scrollAndclick);
 
     // if (casper.exists('.more')) {
@@ -83,6 +89,7 @@ function scrollAndclick() {
     // };
 
   } else {
+    clearInterval(intervalId);
     casper.echo('Begin Downloading', 'INFO')
     getContent();
 
