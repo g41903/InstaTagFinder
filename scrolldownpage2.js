@@ -7,7 +7,7 @@ var casper = require('casper').create({
 	verbose: true,
 	logLevel: "debug",
 
-	waitTimeout: 10000000,
+	waitTimeout: 1000000000000000000,
 	pageSettings: {
 		loadImages: false,
 		loadPlugins: false,
@@ -22,6 +22,7 @@ var casper = require('casper').create({
 });
 
 // casper.onResourceTimeout = 500;
+
 
 var instagramTag = casper.cli.get(0);
 var clickMaxNum = casper.cli.get(1);

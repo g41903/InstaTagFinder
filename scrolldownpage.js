@@ -6,7 +6,7 @@ var casper = require('casper').create({
   // verbose: true,
   // logLevel: "debug",
 
-  waitTimeout: 100000,
+  waitTimeout: 100000000000,
   pageSettings: {
     loadImages: false,
     loadPlugins: false,
