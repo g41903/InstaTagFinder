@@ -4,15 +4,13 @@
 "use strict";
 
 var casper = require('casper').create({
-	verbose: true,
-	logLevel: "debug",
-
+	// verbose: true,
+	// logLevel: "debug",
 	waitTimeout: 1000000000000000000,
 	pageSettings: {
 		loadImages: false,
 		loadPlugins: false,
 		javascript: false
-
 	},
 	viewportSize: {
 		height: 1000,
@@ -110,13 +108,13 @@ function scrollAndclick() {
 			}, function then() {
 				// elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
 				clickMoreTimes++;
-				this.echo('Click ' + clickMoreTimes + ' times');
+				// this.echo('Click ' + clickMoreTimes + ' times');
 				timeDiff = Math.abs(new Date() - startTime);
 				sumTime = sumTime + timeDiff;
 				casper.echo("TimeSlotTest: " + timeDiff);
 				casper.echo("SumTime: " + sumTime);
 				startTime = new Date();
-				this.echo(elements.length, 'Debug');
+				this.echo(clickMoreTimes, 'Debug');
 			});
 		});
 	});
@@ -145,37 +143,32 @@ function getContent() {
 }
 
 function processQueue() {
+	// casper.echo('pageResultsJSON: ' + JSON.stringify(pageResults));
 	if (pageResults.length === 0) {
 		return;
 	}
 
 	//Interate through every pageResults (instagram content array)
-	casper.echo('PageresultsYeh: ' + JSON.stringify(pageResults));
 	casper.eachThen(pageResults, function(response) {
-		casper.echo('pageResults_resonse:' + JSON.stringify(response));
-
-		// var pageDetail = response;
-		this.thenOpen(response.data[0], function(response) {
-			casper.echo("ResponseObject02: " + JSON.stringify(response));
-
-			// var position = queued.indexOf(response.url);
-			casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
-			casper.download(
-				response.url, filePath
-			);
-			// Stacking in downloaded 
-			// and removing the url from the queued array 
-			// downloaded.push(response.url);
-			// queued = queued.slice(0, position).concat(queued.slice(position + 1));
-		});
-
+		// casper.echo('pageResults_resonse:' + JSON.stringify(response));
 
 		var modified = new Date(response.headers.get("Last-Modified"));
-		// casper.echo("GetLastModified: "+modified);
 		var pic_id = response.url.split("/").pop();
 		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
 		var filePath = "SimpleSraper/" + pic_date + "/" + response.url.split("/").pop();
 		var location = instagramTag;
+
+
+
+		this.thenOpen(response.data[0], function(response) {
+			// casper.echo("picUrlResponseJSON: " + JSON.stringify(response));
+
+			casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
+			casper.download(
+				response.url, filePath
+			);
+		});
+
 
 
 		//JSON format example
@@ -232,10 +225,10 @@ casper.then(function() {
 
 	var completeTime = new Date();
 	var path = 'simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.txt'
-		// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
+	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
 	var content = JSON.stringify(jsonArray);
-	// casper.echo("JSONresult: " + JSON.stringify(jsonArray));
 	fs.write(path, content, 'w');
+	casper.echo('Finally, write JSON to path file! Completed!!');
 	// phantom.exit();
 })
 
