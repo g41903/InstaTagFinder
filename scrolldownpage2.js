@@ -160,7 +160,22 @@ function processQueue() {
 
 
 			// schema
-			var jsonRecord = {
+
+		// 	var jsonRecord={"img_date": "2.56 pm 3/8/2016", 
+		// 	"img_url": ["https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/12751595_1074805932563334_2018748999_n.jpg?ig_cache_key=MTIwMTY0MjU0MDA0OTA3ODA1OQ%3D%3D.2.l"], 
+		// 	"img_tags": "#friends#andorra#hotelcosmos", 
+		// 	"detail_tags": "andorrafriendshotelcosmos", 
+		// 	"page_url": "/p/1201569514467056575_46559053", 
+		// 	"img_latitude": ["42.534824182"], 
+		// 	"img_longitude": ["1.587413623"], 
+		// 	"img_result": "", 
+		// 	"text_result": "", 
+		// 	"created_time": "Tue Mar 08 2016 15:07:42 GMT-0500 (EST)", 
+		// 	"updated_time": "Tue Mar 08 2016 15:07:42 GMT-0500 (EST)" 
+		// },
+
+
+		var jsonRecord = {
 				// "img_id": pic_id,
 				"img_date": img_date,
 				"img_url":img_url,
