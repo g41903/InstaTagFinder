@@ -29,6 +29,8 @@ cd instagram-hashtag-gist
 
 casperjs scrolldownpage2.js andorra 200 --ssl-protocal=any
 
+casperjs locationScraper.js andorra 200 --ssl-protocal=any
+
 ```
 
 ## Sample Output
