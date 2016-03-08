@@ -172,13 +172,12 @@ function processQueue() {
 		// 		response.url, filePath
 		// 		);
 		// });
-
-		i++;
-		this.thenOpen(response.data[0],function(response){
+casper.echo("pageUrlResponse: "+response);
+this.thenOpen(response.data[0],function(res){
 			// casper.echo('open instagram page');
 			casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
-			casper.echo('Response1:'+response);
-
+			casper.echo('pageContentResponse:'+res);
+			
 		});
 
 
