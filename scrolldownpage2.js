@@ -30,16 +30,12 @@ var downloaded = [];
 var queued = [];
 var pageResults = [];
 var jsonArray = [];
+
+var page_url=0;
 var startTime = new Date();
 var timeDiff = 0;
 var page_time = 0;
 var page_location = "";
-
-
-var elements = "";
-var elementsAlts = "";
-var elementsTitles = "";
-var elementsHrefs = "";
 
 var downloadCounts = 0;
 
@@ -48,11 +44,9 @@ var sumTime = 0;
 var sumDownLoadTime = 0;
 
 var elemNum = 0;
-
 var currentClickNum = 0;
+var elementsHrefs=0;
 
-
-var intervalId = 0;
 
 function queue(url) {
 	// casper.echo("MapURL: " + url);
@@ -127,17 +121,10 @@ function scrollAndclick() {
 }
 
 function getContent() {
-
-	// elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
-	// elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
-	// elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
 	elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
 	// elemNum = elements.length;
 	elemNum=elementsHrefs.length;
 	for (var i = 0; i < elemNum; i++) {
-		// var newUrl = queue(elements[i]);
-		// pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
-		// pageResults.push(newUrl);
 		var newUrl=elementsHrefs[i];
 		pageResults.push(newUrl);
 	}
@@ -153,42 +140,90 @@ function processQueue() {
 	}
 
 	function openInstagramPage(value,index,array){
-		casper.echo('Download #'+ index+' - '+value,'INFO');	
-		casper.thenOpen(value,function(res){
+		casper.echo('Download #'+ index+' - '+value,'INFO');
+		page_url=value;	
+		casper.thenOpen(page_url,function(res){
 			// casper.echo('open instagram page');
 			// casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
+			downloadCounts++;
 			casper.echo('pageContentResponse:'+JSON.stringify(res));
 			// casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
-			var latitude=casper.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .latitude', 'value');
-			var longitute=casper.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .longitute', 'value');
-			casper.echo('latitude:',latitude,'INFO');
-			casper.echo('longitute:',longitute,'INFO');
+
+			var page_owner=casper.fetchText('.list-username-user','class');
+			var img_url=casper.getElementsAttribute('.photo-mode-liste','src');
+
+
+			var img_latitude=casper.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .latitude', 'value');
+			var img_longitude=casper.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .longitude', 'value');
+			
+
+
+			// 1.10 pm 3/8/2016
+			var img_date=casper.fetchText('.pic-created','class');
+			var img_tags=casper.fetchText('.htCaption','class');
+			var detail_tags=casper.fetchText('.unTag','class');
+
+
+			// schema
+			var jsonRecord = {
+				// "img_id": pic_id,
+				"img_date": img_date,
+				"img_url":img_url,
+				// "img_file_path": filePath,
+				"img_tags": img_tags,
+				"detail_tags":detail_tags,
+				// "img_title": response.data[2],
+				"page_url": page_url,
+				// "img_location": location,
+				"img_latitude":img_latitude,
+				"img_longitude":img_longitude,
+				"img_result": "",
+				"text_result": "",
+				"created_time": Date(),
+				"updated_time": Date()
+			}
+
+
+
+			casper.echo('latitude: '+img_latitude,'INFO');
+			casper.echo('longitude: '+img_longitude,'INFO');
+			casper.echo('date: '+img_date,'INFO');
+			casper.echo('tags: '+img_tags,'INFO');
+
+			jsonArray.push(jsonRecord);
+
+
+			// console.log("DOWNLAOD TIME!!!");
+			timeDiff = Math.abs(new Date() - startTime);
+			sumDownLoadTime = sumDownLoadTime + timeDiff;
+			casper.echo("TimeSlotTest: " + timeDiff);
+			casper.echo("SumDownloadTime:" + sumDownLoadTime);
+			startTime = new Date();
+
 
 
 		});	
-	}
-	
-	pageResults.forEach(
-		openInstagramPage
-		);
+}
 
+pageResults.forEach(
+	openInstagramPage
+	);
 };
 
 
 casper.start(baseUrl, scrollAndclick);
 
 
-// casper.then(function() {
-// 	var fs = require('fs');
-
-// 	var completeTime = new Date();
-// 	var path = 'simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.txt'
-// 	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
-// 	var content = JSON.stringify(jsonArray);
-// 	fs.write(path, content, 'w');
-// 	casper.echo('Finally, write JSON to path file! Completed!!');
-// 	// phantom.exit();
-// })
+casper.then(function() {
+	var fs = require('fs');
+	var completeTime = new Date();
+	var path = 'simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.txt'
+	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
+	var content = JSON.stringify(jsonArray);
+	fs.write(path, content, 'w');
+	casper.echo('Finally, write JSON to path file! Completed!!');
+	// phantom.exit();
+});
 
 // casper.then(function() {
 // 	var fs = require('fs');
@@ -196,9 +231,9 @@ casper.start(baseUrl, scrollAndclick);
 // 	var completeTime = new Date();
 // 	var path = 'JSONs/Downloaded/simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.json'
 // 		// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
-// 	var content = JSON.stringify(jsonArray);
-// 	fs.write(path, content, 'w');
-// 	casper.echo('Finally, write JSON to path file! Completed!!');
+// 		var content = JSON.stringify(jsonArray);
+// 		fs.write(path, content, 'w');
+// 		casper.echo('Finally, write JSON to path file! Completed!!');
 // 	// phantom.exit();
 // })
 
