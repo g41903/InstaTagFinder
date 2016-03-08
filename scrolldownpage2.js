@@ -74,19 +74,19 @@ function scrollAndclick() {
 
 
 	// if (currentClickNum < clickMaxNum) {
-	casper.echo('Begin to scroll!!', 'INFO');
+		casper.echo('Begin to scroll!!', 'INFO');
 
-	casper.Clicker = function() {
+		casper.Clicker = function() {
 		// this.click('#vote');
 		casper.evaluate(
-				function() {
-					window.document.body.scrollTop = document.body.scrollHeight;
-				}
+			function() {
+				window.document.body.scrollTop = document.body.scrollHeight;
+			}
 			)
 			// window.scrollTo(0, Math.max(Math.max(document.body.scrollHeight,document.documentElement.scrollHeig‌​ht),Math.max(document.body.offsetHeight,document.documentElement.offsetHeight),Ma‌​th.max(document.body.clientHeight, document.documentElement.clientHeight)));
-		this.echo('I just clicked');
-		return true;
-	};
+			this.echo('I just clicked');
+			return true;
+		};
 
 	//function to wait set time
 	casper.Waiter = function() {
@@ -128,15 +128,18 @@ function scrollAndclick() {
 
 function getContent() {
 
-	elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
-	elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
-	elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
+	// elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
+	// elementsAlts = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'alt');
+	// elementsTitles = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
 	elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
-	elemNum = elements.length;
+	// elemNum = elements.length;
+	elemNum=elementsHrefs.length;
 	for (var i = 0; i < elemNum; i++) {
-		var newUrl = queue(elements[i]);
-		pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
+		// var newUrl = queue(elements[i]);
+		// pageResults.push([newUrl, elementsAlts[i], elementsTitles[i], elementsHrefs[i]]);
 		// pageResults.push(newUrl);
+		var newUrl=elementsHrefs[i];
+		pageResults.push(newUrl);
 	}
 	casper.echo("processingpageResults:" + elemNum, 'INFO');
 	processQueue();
@@ -145,6 +148,7 @@ function getContent() {
 function processQueue() {
 	// casper.echo('pageResultsJSON: ' + JSON.stringify(pageResults));
 	if (pageResults.length === 0) {
+		casper.echo('No hrefs');
 		return;
 	}
 
@@ -152,23 +156,30 @@ function processQueue() {
 	casper.eachThen(pageResults, function(response) {
 		// casper.echo('pageResults_resonse:' + JSON.stringify(response));
 
-		var modified = new Date(response.headers.get("Last-Modified"));
-		var pic_id = response.url.split("/").pop();
-		var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
-		var filePath = "SimpleSraper/" + pic_date + "/" + response.url.split("/").pop();
-		var location = instagramTag;
+		// var modified = new Date(response.headers.get("Last-Modified"));
+		// var pic_id = response.url.split("/").pop();
+		// var pic_date = [modified.getUTCFullYear(), modified.getUTCMonth() + 1, modified.getUTCDate()].join("-");
+		// var filePath = "SimpleSraper/" + pic_date + "/" + response.url.split("/").pop();
+		// var location = instagramTag;
 
 
+		//img_url: response.data[0], here we open each image url and download it.
+		// this.thenOpen(response.data[0], function(response) {
+		// 	// casper.echo("picUrlResponseJSON: " + JSON.stringify(response));
 
-		this.thenOpen(response.data[0], function(response) {
-			// casper.echo("picUrlResponseJSON: " + JSON.stringify(response));
+		// 	casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
+		// 	casper.download(
+		// 		response.url, filePath
+		// 		);
+		// });
 
+		i++;
+		this.thenOpen(response.data[0],function(response){
+			// casper.echo('open instagram page');
 			casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
-			casper.download(
-				response.url, filePath
-			);
-		});
+			casper.echo('Response1:'+response);
 
+		});
 
 
 		//JSON format example
@@ -188,28 +199,28 @@ function processQueue() {
 		}
 
 		//Generate one JSON object
-		var jsonRecord = {
-			"img_id": pic_id,
-			"img_date": pic_date,
-			"img_url": response.data[0],
-			"img_file_path": filePath,
-			"img_tags": response.data[1],
-			"img_title": response.data[2],
-			"page_url": response.data[3],
-			"img_location": location,
-			"img_result": "",
-			"text_result": "",
-			"created_time": Date(),
-			"updated_time": Date()
-		}
+		// var jsonRecord = {
+		// 	"img_id": pic_id,
+		// 	"img_date": pic_date,
+		// 	"img_url": response.data[0],
+		// 	"img_file_path": filePath,
+		// 	"img_tags": response.data[1],
+		// 	"img_title": response.data[2],
+		// 	"page_url": response.data[3],
+		// 	"img_location": location,
+		// 	"img_result": "",
+		// 	"text_result": "",
+		// 	"created_time": Date(),
+		// 	"updated_time": Date()
+		// }
 
-		jsonArray.push(jsonRecord);
-		console.log("DOWNLAOD TIME!!!");
-		timeDiff = Math.abs(new Date() - startTime);
-		sumDownLoadTime = sumDownLoadTime + timeDiff;
-		casper.echo("TimeSlotTest: " + timeDiff);
-		casper.echo("SumDownloadTime:" + sumDownLoadTime);
-		startTime = new Date();
+		// jsonArray.push(jsonRecord);
+		// console.log("DOWNLAOD TIME!!!");
+		// timeDiff = Math.abs(new Date() - startTime);
+		// sumDownLoadTime = sumDownLoadTime + timeDiff;
+		// casper.echo("TimeSlotTest: " + timeDiff);
+		// casper.echo("SumDownloadTime:" + sumDownLoadTime);
+		// startTime = new Date();
 
 
 
@@ -220,16 +231,16 @@ function processQueue() {
 
 casper.start(baseUrl, scrollAndclick);
 
-casper.then(function() {
-	var fs = require('fs');
+// casper.then(function() {
+// 	var fs = require('fs');
 
-	var completeTime = new Date();
-	var path = 'simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.txt'
-	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
-	var content = JSON.stringify(jsonArray);
-	fs.write(path, content, 'w');
-	casper.echo('Finally, write JSON to path file! Completed!!');
-	// phantom.exit();
-})
+// 	var completeTime = new Date();
+// 	var path = 'simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.txt'
+// 	// casper.echo("JSONresults: " + JSON.stringify(jsonArray));
+// 	var content = JSON.stringify(jsonArray);
+// 	fs.write(path, content, 'w');
+// 	casper.echo('Finally, write JSON to path file! Completed!!');
+// 	// phantom.exit();
+// })
 
 casper.run();
