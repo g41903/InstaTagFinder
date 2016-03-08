@@ -151,13 +151,8 @@ function processQueue() {
 
 			var page_owner=casper.fetchText('.list-username-user','class');
 			var img_url=casper.getElementsAttribute('.photo-mode-liste','src');
-
-
 			var img_latitude=casper.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .latitude', 'value');
 			var img_longitude=casper.getElementsAttribute('.conteneurPhotoListGauche .PhotoListGauchePhoto .longitude', 'value');
-			
-
-
 			// 1.10 pm 3/8/2016
 			var img_date=casper.fetchText('.pic-created','class');
 			var img_tags=casper.fetchText('.htCaption','class');
