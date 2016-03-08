@@ -146,7 +146,7 @@ function processQueue() {
 			// casper.echo('open instagram page');
 			// casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
 			downloadCounts++;
-			casper.echo('pageContentResponse:'+JSON.stringify(res));
+			// casper.echo('pageContentResponse:'+JSON.stringify(res));
 			// casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'title');
 
 			var page_owner=casper.fetchText('.list-username-user','class');
@@ -194,11 +194,11 @@ function processQueue() {
 			}
 
 
-
-			casper.echo('latitude: '+img_latitude,'INFO');
-			casper.echo('longitude: '+img_longitude,'INFO');
-			casper.echo('date: '+img_date,'INFO');
-			casper.echo('tags: '+img_tags,'INFO');
+			casper.echo('Download #'+ downloadCounts+' - '+img_date,'INFO');
+			casper.echo('latitude: '+img_latitude);
+			casper.echo('longitude: '+img_longitude);
+			casper.echo('date: '+img_date);
+			casper.echo('tags: '+img_tags);
 
 			jsonArray.push(jsonRecord);
 
