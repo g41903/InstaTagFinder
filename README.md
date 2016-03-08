@@ -27,7 +27,7 @@ cd instagram-hashtag-gist
 
 # Downloading the 200 pages of latest pictures of andorra from iconosquare.com
 
-casperjs scrolldownpage2.js andorra 200 --ssl-protocoal=any
+casperjs scrolldownpage2.js andorra 200 --ssl-protocal=any
 
 ```
 
