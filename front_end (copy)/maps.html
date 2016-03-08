@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Andorra TripAdvisor Map</title>
+    <style>
+    html,
+    body,
+    #map-canvas {
+        height: 100%;
+        padding: 0px;
+        margin-left: 10px;
+        margin-right: 20px;
+        margin-top: 10px;
+        /*background: #0F0F0F;*/
+        background: #ffffff;
+    }
+    
+    label {
+        color: white;
+    }
+    
+    #map-canvas {
+        vertical-align: bottom;
+        width: 100%!important;
+        height: 600px!imortant;
+        display: inline-block;
+        top: 0px;
+        overflow: scroll!important;
+        color: black;
+    }
+    
+    #map {
+        color: white;
+        display: inline-block;
+        top: 0px;
+        width: 100%!important;
+        height: 600px!important;
+        margin-bottom: 10px;
+    }
+    
+    polyline {
+        opacity: .3;
+        stroke: white;
+        stroke-width: 2px;
+        fill: none;
+    }
+    </style>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="map.js"></script>
+    <!-- pie_chart_includes -->
+    
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?2.4.5"></script>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.csv.js?2.4.5"></script>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.layout.js?2.4.5"></script>
+    <style type="text/css">
+    body {
+        text-align: center;
+    }
+    
+    svg {
+        font: 10px sans-serif;
+    }
+    </style>
+
+    <script src="ejs.js"></script>
+</head>
+
+<body>
+    <div id="map">
+        <div class="ui-widget">
+            <label for="autocomplete">Enter Keyword For Photo: </label>
+            <input id="autocomplete">
+        </div>
+        <div id="map-canvas"></div>
+
+    </div>
+</body>
+
+</html>
