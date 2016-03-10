@@ -114,7 +114,7 @@ function scrollAndclick() {
 	});
 
 	casper.then(function() {
-		getContent()
+		getContent();
 	});
 
 
@@ -126,7 +126,17 @@ function getContent() {
 	elemNum=elementsHrefs.length;
 	for (var i = 0; i < elemNum; i++) {
 		var newUrl=elementsHrefs[i];
-		pageResults.push(newUrl);
+		var substring="http://iconosquare.com"
+		if(newUrl==='undefined'){
+			casper.log("Undefined URL  : "+newUrl,'INFO');
+		}else if(newUrl.indexOf(substring)>-1){
+			pageResults.push(newUrl);	
+		}else{
+			newUrl=substring+newUrl;
+			casper.log("!!!NEW URL  : "+newUrl,'INFO');
+			pageResults.push(newUrl);	
+		}
+		
 	}
 	casper.echo("processingpageResults:" + elemNum, 'INFO');
 	processQueue();
@@ -139,7 +149,7 @@ function processQueue() {
 		return;
 	}
 
-	function openInstagramPage(value,index,array){
+	casper.openInstagramPage=function (value,index,array){
 		casper.echo('Download #'+ index+' - '+value,'INFO');
 		page_url=value;	
 		casper.thenOpen(page_url,function(res){
@@ -211,13 +221,44 @@ function processQueue() {
 			startTime = new Date();
 
 
+// var i = 0;
+// var nTimes = x.length;
+
+// casper.repeat(nTimes, function() {
+//     //... do your stuff
+//     i++;
+// });
+
+
+
 
 		});	
 }
 
-pageResults.forEach(
-	openInstagramPage
-	);
+
+// pageResults.forEach(
+// 	openInstagramPage
+// 	);
+var downloadMaxNum=pageResults.length;
+var urlIndex=0;
+
+casper.then(function(){
+this.repeat(downloadMaxNum,function(){
+	this.waitFor(
+			function check(){
+				urlIndex++;
+				this.openInstagramPage(pageResults[urlIndex],urlIndex,pageResults);
+				return true;
+				}
+			)
+		}
+	)
+})
+
+
+
+
+
 };
 
 
