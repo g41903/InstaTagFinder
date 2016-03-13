@@ -8,24 +8,28 @@ var casper = require('casper').create({
     // logLevel: "debug",
     waitTimeout: 1000000000000000000,
     pageSettings: {
-    	loadImages: false,
+    	loadImages: true,
     	loadPlugins: false,
     	javascript: false
     },
     viewportSize: {
     	height: 1000,
     	width: 1024
-    }
+    },
+    onResourceRequested : function(R, req, net) {
+    	var match = req.url.match(/fbexternal-a\.akamaihd\.net\/safe_image|\.pdf|\.mp4|\.png|\.gif|\.avi|\.bmp|\.jpg|\.jpeg|\.swf|\.fla|\.xsd|\.xls|\.doc|\.ppt|\.zip|\.rar|\.7zip|\.gz|\.csv/gim);
+    	if (match !== null) {
+    		net.abort();
+    	}
+    }});
 
-});
-
-var closeFunc = function() {
-	phantom.exit(0);
-};
-casper.onResourceRequested = function(request) {
-	console.log('Request ' + request.url);
-	return closeFunc();
-};
+// var closeFunc = function() {
+// 	phantom.exit(0);
+// };
+// casper.onResourceRequested = function(request) {
+// 	console.log('Request ' + request.url);
+// 	return closeFunc();
+// };
 
 // casper.onResourceTimeout = 500;
 
@@ -273,15 +277,26 @@ return true;
 var downloadMaxNum = pageResults.length-1;
 var urlIndex = 0;
 
+
 casper.then(function() {
 	this.repeat(downloadMaxNum, function() {
 		this.waitFor(
 			function check() {
 				urlIndex++;
+
 				this.openInstagramPage(pageResults[urlIndex], urlIndex, pageResults);
+				// casper.page.close();
+				// casper.page = require('webpage').create();
 				return true;
 			}
-			)
+			);
+		// this.then(
+		// 	function then() {
+		// 		casper.page.close();
+		// 		casper.page = require('webpage').create();
+		// 		return true;
+		// 	}
+		// 	);
 	})
 })
 
@@ -306,9 +321,9 @@ casper.start(baseUrl, scrollAndclick);
 
 
 casper.then(
-function(){
-phantom.exit();
-});
+	function(){
+		phantom.exit();
+	});
 
 
 
