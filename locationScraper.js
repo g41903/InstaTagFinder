@@ -1,30 +1,30 @@
 // scrolldownpage2.js
 // scrolldownpage.js
 
-"use strict";
+// "use strict";
 
 var casper = require('casper').create({
     // verbose: true,
     // logLevel: "debug",
     waitTimeout: 1000000000000000000,
     pageSettings: {
-        loadImages: false,
-        loadPlugins: false,
-        javascript: false
+    	loadImages: false,
+    	loadPlugins: false,
+    	javascript: false
     },
     viewportSize: {
-        height: 1000,
-        width: 1024
+    	height: 1000,
+    	width: 1024
     }
 
 });
 
 var closeFunc = function() {
-    phantom.exit(0);
+	phantom.exit(0);
 };
 casper.onResourceRequested = function(request) {
-    console.log('Request ' + request.url);
-    return closeFunc();
+	console.log('Request ' + request.url);
+	return closeFunc();
 };
 
 // casper.onResourceTimeout = 500;
@@ -54,6 +54,15 @@ var sumDownLoadTime = 0;
 var elemNum = 0;
 var currentClickNum = 0;
 var elementsHrefs = 0;
+// var fs = require('fs');
+var completeTime = new Date();
+var path="Nopath.txt";
+// var logFile = fs.createWriteStream(path, {
+//   flags: "a",
+//   encoding: "encoding",
+//   mode: 0744
+// })
+
 
 
 function queue(url) {
@@ -76,38 +85,38 @@ function scrollAndclick() {
 
 
     // if (currentClickNum < clickMaxNum) {
-    casper.echo('Begin to scroll!!', 'INFO');
+    	casper.echo('Begin to scroll!!', 'INFO');
 
-    casper.Clicker = function() {
+    	casper.Clicker = function() {
         // this.click('#vote');
         casper.evaluate(
-                function() {
-                    window.document.body.scrollTop = document.body.scrollHeight;
-                }
-            )
+        	function() {
+        		window.document.body.scrollTop = document.body.scrollHeight;
+        	}
+        	)
             // window.scrollTo(0, Math.max(Math.max(document.body.scrollHeight,document.documentElement.scrollHeig‌​ht),Math.max(document.body.offsetHeight,document.documentElement.offsetHeight),Ma‌​th.max(document.body.clientHeight, document.documentElement.clientHeight)));
-        this.echo('I just clicked');
-        return true;
-    };
+            this.echo('I just clicked');
+            return true;
+        };
 
     //function to wait set time
     casper.Waiter = function() {
         // adjust wait time between clicks
         this.wait(1000, function() {
-            this.echo('I waited for 1 second');
+        	this.echo('I waited for 1 second');
         });
         return true;
     };
 
     // loop
     casper.then(function() {
-        this.repeat(clickMaxNum, function() {
-            this.waitFor(function check() {
-                return this.Clicker();
-            });
-            this.waitFor(function check() {
-                return this.Waiter();
-            }, function then() {
+    	this.repeat(clickMaxNum, function() {
+    		this.waitFor(function check() {
+    			return this.Clicker();
+    		});
+    		this.waitFor(function check() {
+    			return this.Waiter();
+    		}, function then() {
                 // elements = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid:only-child img', 'src');
                 clickMoreTimes++;
                 // this.echo('Click ' + clickMoreTimes + ' times');
@@ -118,14 +127,11 @@ function scrollAndclick() {
                 startTime = new Date();
                 this.echo(clickMoreTimes, 'Debug');
             });
-        });
+    	});
     });
 
     casper.then(function() {
-
-
-
-        getContent();
+    	getContent();
     });
 
 
@@ -134,13 +140,13 @@ function scrollAndclick() {
 function getContent() {
 
 
-    elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
+	elementsHrefs = casper.getElementsAttribute('.photos-wrapper .image-wrapper .lienPhotoGrid', 'href');
     // elemNum = elements.length;
     elemNum = elementsHrefs.length;
     // casper.then(function() {
-    var fs = require('fs');
-    var completeTime = new Date();
-    var path = 'ElementHrefs ' + elemNum + " " + completeTime;
+    	var fs = require('fs');
+    	var completeTime = new Date();
+    	var path = 'ElementHrefs ' + elemNum + " " + completeTime;
     // casper.echo("JSONresults: " + JSON.stringify(jsonArray));
     var content = JSON.stringify(elementsHrefs);
     fs.write(path, content, 'w');
@@ -153,35 +159,35 @@ function getContent() {
 
 
 
-    for (var i = 0; i < elemNum; i++) {
-        var newUrl = elementsHrefs[i];
-        var substring = "http://iconosquare.com"
-        if (newUrl === 'undefined'||newUrl==="") {
-            casper.log("Undefined URL  : " + newUrl, 'INFO');
-        } else if (newUrl.indexOf(substring) > -1) {
-            pageResults.push(newUrl);
-        } else {
-            newUrl = substring + newUrl;
-            casper.log("!!!NEW URL  : " + newUrl, 'INFO');
-            pageResults.push(newUrl);
-        }
+for (var i = 0; i < elemNum; i++) {
+	var newUrl = elementsHrefs[i];
+	var substring = "http://iconosquare.com"
+	if (newUrl === 'undefined'||newUrl==="") {
+		casper.log("Undefined URL  : " + newUrl, 'INFO');
+	} else if (newUrl.indexOf(substring) > -1) {
+		pageResults.push(newUrl);
+	} else {
+		newUrl = substring + newUrl;
+		casper.log("!!!NEW URL  : " + newUrl, 'INFO');
+		pageResults.push(newUrl);
+	}
 
-    }
-    casper.echo("processingpageResults:" + elemNum, 'INFO');
-    processQueue();
+}
+casper.echo("processingpageResults:" + elemNum, 'INFO');
+processQueue();
 }
 
 function processQueue() {
     // casper.echo('pageResultsJSON: ' + JSON.stringify(pageResults));
     if (pageResults.length === 0) {
-        casper.echo('No hrefs');
-        return;
+    	casper.echo('No hrefs');
+    	return;
     }
 
     casper.openInstagramPage = function(value, index, array) {
-        casper.echo('Download #' + index + ' - ' + value, 'INFO');
-        page_url = value;
-        casper.thenOpen(page_url, function(res) {
+    	casper.echo('Download #' + index + ' - ' + value, 'INFO');
+    	page_url = value;
+    	casper.thenOpen(page_url, function(res) {
             // casper.echo('open instagram page');
             // casper.echo('Download #' + (++downloadCounts) + ' – ' + response.url, 'INFO');
             downloadCounts++;
@@ -239,7 +245,15 @@ function processQueue() {
             casper.echo('date: ' + img_date);
             casper.echo('tags: ' + img_tags);
 
-            jsonArray.push(jsonRecord);
+            var fs = require('fs');
+            var content1=JSON.stringify(jsonRecord);
+            if(downloadCounts==1){
+            	content1="["+content1;
+            	path = 'normal_json_tag_' + instagramTag + '_counts_' + elemNum +'.txt'
+            	fs.write(path,content1+',','a');
+            }else{
+            	fs.write(path,content1+',','a');
+            }
 
 
             // console.log("DOWNLAOD TIME!!!");
@@ -250,40 +264,26 @@ function processQueue() {
             startTime = new Date();
 
 
-            // var i = 0;
-            // var nTimes = x.length;
-
-            // casper.repeat(nTimes, function() {
-            //     //... do your stuff
-            //     i++;
-            // });
-
-
-
-
         });
 
-        return true;
-    }
+return true;
+}
 
 
-    // pageResults.forEach(
-    // 	openInstagramPage
-    // 	);
-    var downloadMaxNum = pageResults.length-1;
-    var urlIndex = 0;
+var downloadMaxNum = pageResults.length-1;
+var urlIndex = 0;
 
-    casper.then(function() {
-        this.repeat(downloadMaxNum, function() {
-            this.waitFor(
-                function check() {
-                    urlIndex++;
-                    this.openInstagramPage(pageResults[urlIndex], urlIndex, pageResults);
-                    return true;
-                }
-            )
-        })
-    })
+casper.then(function() {
+	this.repeat(downloadMaxNum, function() {
+		this.waitFor(
+			function check() {
+				urlIndex++;
+				this.openInstagramPage(pageResults[urlIndex], urlIndex, pageResults);
+				return true;
+			}
+			)
+	})
+})
 
 
 };
@@ -291,17 +291,6 @@ function processQueue() {
 
 casper.start(baseUrl, scrollAndclick);
 
-
-casper.then(function() {
-    var fs = require('fs');
-    var completeTime = new Date();
-    var path = 'simple_json_tag_' + instagramTag + '_counts_' + downloadCounts + '_' + completeTime + '.txt'
-        // casper.echo("JSONresults: " + JSON.stringify(jsonArray));
-    var content = JSON.stringify(jsonArray);
-    fs.write(path, content, 'w');
-    casper.echo('Finally, write JSON to path file! Completed!!');
-    // phantom.exit();
-});
 
 // casper.then(function() {
 // 	var fs = require('fs');
@@ -314,5 +303,13 @@ casper.then(function() {
 // 		casper.echo('Finally, write JSON to path file! Completed!!');
 // 	// phantom.exit();
 // })
+
+
+casper.then(
+function(){
+phantom.exit();
+});
+
+
 
 casper.run();
