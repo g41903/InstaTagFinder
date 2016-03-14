@@ -158,11 +158,6 @@ function getContent() {
     // phantom.exit();
     // });
 
-
-
-
-
-
 for (var i = 0; i < elemNum; i++) {
 	var newUrl = elementsHrefs[i];
 	var substring = "http://iconosquare.com"
@@ -238,6 +233,7 @@ function processQueue() {
                 "img_longitude": img_longitude,
                 "img_result": "",
                 "text_result": "",
+                "instagram_tag":instagramTag,
                 "created_time": Date(),
                 "updated_time": Date()
             }
@@ -269,6 +265,7 @@ function processQueue() {
 
 
         });
+	casper.close();
 
 return true;
 }
