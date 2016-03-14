@@ -265,7 +265,7 @@ function processQueue() {
 
 
         });
-	casper.close();
+	// casper.close();
 
 return true;
 }
