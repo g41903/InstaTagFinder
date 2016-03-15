@@ -150,7 +150,7 @@ function getContent() {
     // casper.then(function() {
     	var fs = require('fs');
     	var completeTime = new Date();
-    	var path = 'ElementHrefs ' + elemNum + " " + completeTime;
+    	var path = 'ElementHrefs ' + elemNum + " " + completeTime+".json";
     // casper.echo("JSONresults: " + JSON.stringify(jsonArray));
     casper.echo('Total ' + elemNum + ' records');
     var content = JSON.stringify(elementsHrefs);
